@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('addEntryBtn').addEventListener('click', addEntry);
     document.getElementById('addMultipleBtn').addEventListener('click', addMultipleEntries);
     document.getElementById('clearBtn').addEventListener('click', clearData);
+    document.getElementById('predictBtn').addEventListener('click', calculatePrediction);
     
     // Tab event listeners
     document.getElementById('tabAddSingle').addEventListener('click', function(event) {
@@ -16,6 +17,9 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     document.getElementById('tabViewEntries').addEventListener('click', function(event) {
       openTab(event, 'viewEntries');
+    });
+    document.getElementById('tabPredict').addEventListener('click', function(event) {
+      openTab(event, 'predict');
     });
   });
   
@@ -306,4 +310,59 @@ document.addEventListener('DOMContentLoaded', function() {
     // Show the current tab, and add an "active" class to the button that opened the tab
     document.getElementById(tabName).style.display = "block";
     evt.currentTarget.className += " active";
+  }
+  
+  function calculatePrediction() {
+    const targetHours = parseFloat(document.getElementById('targetHours').value) || 0;
+    const targetMinutes = parseInt(document.getElementById('targetMinutes').value) || 0;
+    const daysToAdd = parseInt(document.getElementById('daysToAdd').value) || 0;
+    const minHours = parseInt(document.getElementById('minHours').value) || 0;
+    
+    if (targetHours === 0 && targetMinutes === 0) {
+        showNotification('Please enter a valid target time!', 2000);
+        return;
+    }
+    
+    if (daysToAdd <= 0) {
+        showNotification('Please enter a valid number of days!', 2000);
+        return;
+    }
+    
+    if (minHours >= targetHours) {
+        showNotification('Minimum hours must be less than target hours!', 2000);
+        return;
+    }
+    
+    // Convert target to total minutes
+    const targetTotalMinutes = (targetHours * 60) + targetMinutes;
+    const minTotalMinutes = minHours * 60;
+    
+    // Calculate current average and total
+    const currentAvg = tracker.calculateAverage();
+    const currentEntries = tracker.getEntryCount();
+    const currentTotalMinutes = (currentAvg.hours * 60) + currentAvg.minutes;
+    const currentTotal = currentTotalMinutes * currentEntries;
+    
+    // Calculate required total for new average
+    const totalRequiredMinutes = targetTotalMinutes * (currentEntries + daysToAdd);
+    const requiredNewMinutes = totalRequiredMinutes - currentTotal;
+    
+    // Calculate required hours per day
+    const hoursPerDay = Math.floor(requiredNewMinutes / daysToAdd / 60);
+    const minutesPerDay = Math.round((requiredNewMinutes / daysToAdd) % 60);
+    
+    // Validate if the calculated hours meet minimum requirement
+    if (hoursPerDay < minHours) {
+        showNotification('Cannot achieve target with given minimum hours!', 2000);
+        return;
+    }
+    
+    // Display results
+    document.getElementById('targetDisplay').textContent = `${targetHours}h ${targetMinutes}m`;
+    document.getElementById('daysDisplay').textContent = daysToAdd;
+    document.getElementById('hoursPerDay').textContent = hoursPerDay;
+    document.getElementById('minutesPerDay').textContent = minutesPerDay;
+    document.getElementById('predictionResult').style.display = 'block';
+    
+    showNotification('Required hours calculated successfully!');
   }
