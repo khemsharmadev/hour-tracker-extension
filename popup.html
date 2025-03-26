@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Work Time Tracker</title>
+  <style>
+    :root {
+      --primary-color: #4285f4;
+      --primary-hover: #3367d6;
+      --danger-color: #ea4335;
+      --danger-hover: #d33426;
+      --bg-color: #ffffff;
+      --text-color: #333333;
+      --border-color: #e0e0e0;
+      --success-color: #34a853;
+    }
+
+    body {
+      width: 350px;
+      padding: 15px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      color: var(--text-color);
+      background: var(--bg-color);
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 1.5rem;
+      font-weight: 500;
+      color: var(--text-color);
+    }
+
+    .stats {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px;
+      background-color: #f8f9fa;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: #666;
+      margin-bottom: 4px;
+    }
+
+    .stat-value {
+      font-size: 1.1rem;
+      font-weight: 500;
+    }
+
+    .input-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    input {
+      width: 60px;
+      padding: 8px;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.1);
+    }
+
+    button {
+      padding: 8px 16px;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.2s;
+      width: 100%;
+    }
+
+    button:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .tab {
+      display: flex;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 15px;
+    }
+
+    .tab button {
+      background: none;
+      border: none;
+      padding: 10px 16px;
+      color: #666;
+      font-size: 14px;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+      width: auto;
+    }
+
+    .tab button:hover {
+      color: var(--primary-color);
+      background: none;
+    }
+
+    .tab button.active {
+      color: var(--primary-color);
+      border-bottom: 2px solid var(--primary-color);
+      background: none;
+    }
+
+    .tabcontent {
+      display: none;
+    }
+
+    .entry-list {
+      max-height: 300px;
+      overflow-y: auto;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+
+    .entry-item {
+      padding: 12px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background-color 0.2s;
+    }
+
+    .entry-item:hover {
+      background-color: #f8f9fa;
+    }
+
+    .entry-item:last-child {
+      border-bottom: none;
+    }
+
+    .delete-btn {
+      background-color: transparent;
+      color: var(--danger-color);
+      padding: 4px 8px;
+      font-size: 12px;
+      width: auto;
+    }
+
+    .delete-btn:hover {
+      background-color: #ffebee;
+      color: var(--danger-hover);
+    }
+
+    #clearBtn {
+      background-color: transparent;
+      color: var(--danger-color);
+      border: 1px solid var(--danger-color);
+    }
+
+    #clearBtn:hover {
+      background-color: #ffebee;
+      color: var(--danger-hover);
+    }
+
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 12px 20px;
+      border-radius: 4px;
+      background-color: var(--success-color);
+      color: white;
+      font-size: 14px;
+      opacity: 0;
+      transform: translateY(-20px);
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+
+    .notification.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Work Time Tracker</h2>
+    
+    <div class="stats">
+      <div class="stat-item">
+        <div class="stat-label">Days tracked</div>
+        <div class="stat-value" id="daysCount">0</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Average time</div>
+        <div class="stat-value" id="averageTime">0:00</div>
+      </div>
+    </div>
+    
+    <div class="tab">
+      <button class="tablinks active" id="tabAddSingle" data-tab="addSingle">Add Single Day</button>
+      <button class="tablinks" id="tabAddMultiple" data-tab="addMultiple">Add Multiple Days</button>
+      <button class="tablinks" id="tabViewEntries" data-tab="viewEntries">View All Entries</button>
+    </div>
+    
+    <div id="addSingle" class="tabcontent" style="display: block;">
+      <h3>Add Today's Hours</h3>
+      <div class="input-group">
+        <label for="hoursInput">Hours:</label>
+        <input type="number" id="hoursInput" min="0" max="24" value="8">
+        
+        <label for="minutesInput">Minutes:</label>
+        <input type="number" id="minutesInput" min="0" max="59" value="0">
+      </div>
+      <button id="addEntryBtn">Add Entry</button>
+    </div>
+    
+    <div id="addMultiple" class="tabcontent">
+      <h3>Add Multiple Days with Same Hours</h3>
+      <div class="input-group">
+        <label for="daysInput">Number of Days:</label>
+        <input type="number" id="daysInput" min="1" max="100" value="5">
+      </div>
+      <div class="input-group">
+        <label for="multiHoursInput">Hours:</label>
+        <input type="number" id="multiHoursInput" min="0" max="24" value="8">
+        
+        <label for="multiMinutesInput">Minutes:</label>
+        <input type="number" id="multiMinutesInput" min="0" max="59" value="0">
+      </div>
+      <button id="addMultipleBtn">Add Multiple Entries</button>
+    </div>
+    
+    <div id="viewEntries" class="tabcontent">
+      <h3>All Time Entries</h3>
+      <div class="entry-list" id="entriesList">
+        <!-- Entries will be populated here -->
+      </div>
+    </div>
+    
+    <button id="clearBtn">Clear All Data</button>
+  </div>
+
+  <div id="notification" class="notification"></div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>
