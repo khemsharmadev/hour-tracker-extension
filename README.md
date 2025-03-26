@@ -15,7 +15,7 @@ A simple and elegant Chrome extension to track your daily working hours and calc
 
 ## 🖼️ Screenshots
 
-![Work Time Tracker Extension](screenshots/Screenshot%202025-03-26%20at%208.32.49%20PM.png)
+![Work Time Tracker Extension](main_screen.png)
 
 ## 🚀 Installation
 
